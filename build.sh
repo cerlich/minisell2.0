@@ -1,0 +1,1 @@
+gcc -g main.c pwd_dollar_env_echo.c cd.c export.c libft/libft.a utils_1.c utils_2.c unset.c utils_3.c redirect.c
