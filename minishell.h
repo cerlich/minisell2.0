@@ -16,11 +16,10 @@
 typedef struct s_pid
 {
 	pid_t	pid;
-	int 	status_exit;
-	int fork;
+	int		status_exit;
 }				t_pid;
 
-typedef struct	s_all
+typedef struct s_all
 {
 	char				**envp;
 	char				**args;
@@ -33,17 +32,18 @@ typedef struct	s_all
 	int					num_of_pipes;
 	unsigned long long	tmp;
 	t_pid				*pid;
-	//int					status_exit;
 }				t_all;
 
 void	treat_echo(t_all *all);
+void	treat_exit(t_all *all);
 void	treat_pwd(void);
 char	*treat_dollar(char *str, int *j, t_all *all);
 void	treat_env(t_all *all);
 int		treat_cd(t_all *all);
 int		find_overlap(char **s1, char *s2);
-int		parse_args(char *str, char **env, int flag);
+int		parse_args(char *str, int flag);
 char	**treat_export(t_all *all);
+void	print_declare(char **env);
 void	freed(char *str);
 void	d_freed(char **str);
 void	t_freed(char ***str);
@@ -57,9 +57,13 @@ char	**treat_unset(t_all *all);
 int		not_spec(char c);
 void	relloc_args(char *string, t_all *all);
 void	add_arg(t_all *all, char **string);
-void	redirect_err(char *file_name, char *str, int *i);
+int		redirect_err(char *file_name, char *str, int *i);
 int		check_redirect(char *str, int *i);
-void	redirect(char *str, int *i, t_all *all);
-
+int		redirect(char *str, int *i, t_all *all);
+void	to_exec(t_all *all, char *cmd_path,
+			int(*execve)(const char *, char *const *, char *const *));
+void	ft_sigint(int sig);
+void	ft_sigquit(int sig);
+int		get_next_line(int fd, char **line);
 
 #endif

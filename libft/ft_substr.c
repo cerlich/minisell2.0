@@ -18,7 +18,10 @@ char	*ft_substr(char const *s, unsigned int start, size_t len)
 	size_t	i;
 
 	i = 0;
-	if (!s || !(fresh = (char*)malloc((len + 1) * sizeof(*fresh))))
+	if (!s)
+		return (NULL);
+	fresh = (char *)malloc((len + 1) * sizeof(*fresh));
+	if (!fresh)
 		return (NULL);
 	while (len-- && start < ft_strlen(s))
 		fresh[i++] = s[start++];

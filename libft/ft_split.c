@@ -12,7 +12,7 @@
 
 #include "libft.h"
 
-static char			**malloc_err(char **arr)
+static char	**malloc_err(char **arr)
 {
 	unsigned int	i;
 
@@ -53,10 +53,10 @@ static unsigned int	n_strs(char const *s, char c)
 	return (count);
 }
 
-static void			nxt_str(char **str, unsigned int *len,
+static void	nxt_str(char **str, unsigned int *len,
 					char c)
 {
-	unsigned int i;
+	unsigned int	i;
 
 	*str += *len;
 	*len = 0;
@@ -72,7 +72,7 @@ static void			nxt_str(char **str, unsigned int *len,
 	}
 }
 
-char				**ft_split(char const *s, char c)
+char	**ft_split(char const *s, char c)
 {
 	char			**arr;
 	char			*str;
@@ -83,7 +83,8 @@ char				**ft_split(char const *s, char c)
 	if (!s)
 		return (NULL);
 	c_strs = n_strs(s, c);
-	if (!(arr = malloc(sizeof(char *) * (c_strs + 1))))
+	arr = malloc(sizeof(char *) * (c_strs + 1));
+	if (!arr)
 		return (NULL);
 	i = 0;
 	str = (char *)s;
@@ -91,10 +92,10 @@ char				**ft_split(char const *s, char c)
 	while (i < c_strs)
 	{
 		nxt_str(&str, &len, c);
-		if (!(arr[i] = malloc((len + 1) * sizeof(char))))
+		arr[i] = malloc((len + 1) * sizeof(char));
+		if (!arr[i])
 			return (malloc_err(arr));
-		ft_strlcpy(arr[i], str, len + 1);
-		i++;
+		ft_strlcpy(arr[i++], str, len + 1);
 	}
 	arr[i] = NULL;
 	return (arr);

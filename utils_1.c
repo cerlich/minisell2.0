@@ -28,9 +28,9 @@ void	t_freed(char ***str)
 	str = NULL;
 }
 
-int		ft_strclen(const char *s, char c)
+int	ft_strclen(const char *s, char c)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (s[i] != c)
@@ -38,16 +38,17 @@ int		ft_strclen(const char *s, char c)
 	return (i + 1);
 }
 
-int		find_overlap(char **s1, char *s2)
+int	find_overlap(char **s1, char *s2)
 {
-	int i = -1;
-	int len;
+	int	i;
+	int	len;
 
+	i = -1;
 	len = ft_strclen(s2, '=');
 	while (s1[++i])
 	{
 		if (!ft_strncmp(s1[i], s2, len))
-		   return (i);
+			return (i);
 	}
 	return (-1);
 }

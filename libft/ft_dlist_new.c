@@ -16,7 +16,8 @@ t_dlist	*ft_dlst_new(void *content)
 {
 	t_dlist	*new;
 
-	if (!(new = malloc(sizeof(t_dlist))))
+	new = malloc(sizeof(t_dlist));
+	if (!new)
 		return (NULL);
 	new->content = content;
 	new->next = NULL;

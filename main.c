@@ -1,23 +1,5 @@
 #include "minishell.h"
 
-t_pid pid;
-
-void	to_exec(t_all *all, char *cmd_path, int(*execve)(const char *, char *const *, char *const *))
-{
-	//pid_t	pid;
-
-	pid.pid = fork();
-	//printf("%d\n", all->pid->pid);
-	//pid = fork();
-	dup2(all->redirect_1, 1); // Если передать редирект вначале, то он перестаёт считывать с терминала
-	dup2(all->redirect_0, 0);
-	if (pid.pid == 0)
-		execve(cmd_path, all->args, all->envp);
-	else
-		// wait(&pid);
-		wait(&all->pid->status_exit);
-}
-
 static int	treat_utility(t_all *all, char *cmd)
 {
 	int		res;
@@ -61,50 +43,13 @@ void	treat_func(t_all *all)
 		dirs[i] = relloc(dirs[i], '/');
 		dirs[i] = ft_strjoin(dirs[i], all->args[0]);
 		if (treat_utility(all, dirs[i]))
-			return ;
-	}
-	printf("minishell>: %s: command not found\n", all->args[0]);
-}
-
-void	treat_exit(t_all *all)
-{
-	int n = -1;
-	int len = 0;
-	while (all->args[len])
-		len++;
-	if (len == 1)
-	{
-		// all->tmp = 0;
-		// printf("0\n");
-		exit(all->pid->status_exit);
-	}
-	if (len > 2)
-	{
-		// printf("len > 2\n");
-		printf("minishell: exit: too many arguments\n");
-		return ;
-	}
-	if (len == 2)
-	{
-		// printf("len == 2\n");
-		all->tmp = ft_atoi(all->args[1]);
-		while (all->args[1][++n])
 		{
-			if (!ft_isdigit(all->args[1][n]) || all->tmp > 9223372036854775807)
-			{
-				printf("minishell: exit: %s: numeric argument required\n", all->args[1]);
-				all->pid->status_exit = 255;
-				//exit(255);
-			}
+			d_freed(dirs);
+			return ;
 		}
-	   if (all->tmp>= 0 && all->tmp<= 255)
-	   //    exit(tmp);
-			all->pid->status_exit = all->tmp;
-		if (all->tmp >= 256 && all->tmp <= 9223372036854775807)
-			all->pid->status_exit = all->tmp % 256;
-		//printf("%d\n", all->pid->status_exit);
-		exit(all->pid->status_exit);
 	}
+	d_freed(dirs);
+	printf("minishell>: %s: command not found\n", all->args[0]);
 }
 
 void	commands(t_all *all)
@@ -158,6 +103,7 @@ void	to_exec_pipe(t_all *all, int **buf_fd, int i, char *cmd)
 		// dup2(all->redirect_0, all->fd[0]);
 	// if (all->redirect_1 != 1)
 		// dup2(all->redirect_1, all->fd[1]);
+	
 	execve(cmd, all->pipes[i], all->envp);
 }
 
@@ -183,7 +129,10 @@ void	pipe_function(t_all *all, int **buf_fd, int i)
 		res = stat(dirs[j], &buff);
 		if (res == 0 && (buff.st_mode))
 			to_exec_pipe(all, buf_fd, i, dirs[j]);
+		// else
+		// 	break;
 	}
+	d_freed(dirs);
 	printf("minishell: %s: command not found\n", all->pipes[i][0]);
 }
 
@@ -259,7 +208,9 @@ void copy_env(t_all *all, char **env)
 void    all_init(t_all *all, char **env)
 {
 	int i = 0;
-	all->args = (char**)malloc(sizeof(char*));
+	all->args = (char**)malloc(sizeof(char*) * 1);
+	// while(all->args[i])
+	// 	all->args[i++] = NULL;
 	all->args[0] = NULL;
 	all->redirect_0 = 0;
 	all->redirect_1 = 1;
@@ -267,7 +218,9 @@ void    all_init(t_all *all, char **env)
 	all->fd[1] = dup(1);
 	all->count_pipes = 0;
 	//copy_env(all, env);
-	all->pipes = (char***)malloc(sizeof(char**) * all->num_of_pipes);
+	// all->pipes = (char***)malloc(sizeof(char**) * all->num_of_pipes);
+	// while (all->pipes[i])
+	// 	all->pipes[i++] = NULL;
 	all->tmp = 0;
 	// all->pid->status_exit = 0;
 }
@@ -281,7 +234,7 @@ void	parser_utility(t_all *all)
 		all->pipes[all->count_pipes++] = all->args;
 	// d_freed(all->args);
 	// while (all->args[i])
-	// 	freed(all->args[i++]);
+	// 	free(all->args[i++]);
 	// free(all->args);
 	// all->args = NULL;
 	all->args = (char**)malloc(sizeof(char*));
@@ -292,7 +245,7 @@ void	parser_utility(t_all *all)
 	// all_init(all, all->envp);
 }
 
-void	parser(char *str, t_all *all)
+int	parser(char *str, t_all *all)
 {
 	int		i;
 	char	*string;
@@ -319,13 +272,14 @@ void	parser(char *str, t_all *all)
 		else if (str[i] == '\\')
 			string = relloc(string, str[++i]);
 		else if (str[i] == '>' || str[i] == '<')
-		{
-			if (str[i - 1] != ' ' && str[i - 1] != '\t')
-				add_arg(all, &string);
-			redirect(str, &i, all);
-			skip_spaces(str, &i);
-			i--;
-		}
+        {
+            if (str[i - 1] != ' ' && str[i - 1] != '\t')
+                add_arg(all, &string);
+            if (redirect(str, &i, all))
+                return (1);
+            skip_spaces(str, &i);
+            i--;
+        }
 		else if ((str[i] == ' ' || str[i] == '\t'))
 		{
 			if (ft_strncmp(string, "", 1))
@@ -343,9 +297,10 @@ void	parser(char *str, t_all *all)
 		}
 		else if (str[i] == ';')
 		{
-			// skip_spaces(str, &i);
 			if (str[i - 1] != ' ' && str[i - 1] != '\t' && ft_strncmp(string, "", 1))
 				add_arg(all, &string);
+			// skip_spaces(str, &i);
+			// freed(string);
 			if (all->count_pipes)
 			{
 				all->pipes[all->count_pipes] = all->args;
@@ -360,42 +315,43 @@ void	parser(char *str, t_all *all)
 		}
 		else if (str[i] == '$')
 		{
-			//if (ft_isalpha(str[i + 1]))   // не отработает $?
+			if (ft_isalpha(str[i + 1]))
 				tmp = treat_dollar(&str[i], &i, all);
-			//else
-			//	tmp = relloc(ft_strdup(""), str[i]);
+			else if (str[i + 1] == '?')
+				tmp = treat_dollar(&str[i], &i, all);
+			else
+				tmp = relloc(ft_strdup(""), str[i]);
 			string = ft_strjoin(string, tmp);
 			freed(tmp);
 			// string = treat_dollar(&str[i], &i, all->envp);
 			// add_arg(all, &string);
 		}
 		else
-			string = relloc(string, str[i]);
+			string = relloc(string, str[i]);;
 	}
 	if (i > ft_strlen(str))
 		i = ft_strlen(str) + 1;
 	if (ft_strncmp(string, "", 1) && ((str[--i] && (str[i] != ' ' && str[i] != '\t')) || str[i] == '\'' || str[i] == '\"'))
-	{
 		relloc_args(string, all);
-	}
 	if (all->count_pipes)
 		all->pipes[all->count_pipes] = all->args;
+	freed(string);
+	return (0);
 }
 
-void	err_preparser(char *str, char *s)
+int	err_preparser(char *str, char *s)
 {
 	printf("minishell: %s\n", s);
 	freed(str);
-	exit(EXIT_FAILURE);
+	return (1);
 }
 
-void	preparser(char *str, t_all *all)
+int	preparser(char *str, t_all *all)
 {
-	int		i;
-	int		s_quotas;
-	int		d_quotas;
-	int		string_symbols;
-
+	int     i;
+	int     s_quotas;
+	int     d_quotas;
+	int     string_symbols;
 	i = -1;
 	d_quotas = 0;
 	s_quotas = 0;
@@ -412,11 +368,11 @@ void	preparser(char *str, t_all *all)
 			if (!string_symbols)
 			{
 				if (str[i - 1] == '|' && str[i + 1] == '|' && str[i + 2] == '|')
-					err_preparser(str, "syntax error near unexpected token `||'");
+					return (err_preparser(str, "syntax error near unexpected token `||'"));
 				else if (str[i - 1] == '|' && str[i + 1] == '|' && str[i + 2] != '|')
-					err_preparser(str, "minishell: syntax error near unexpected token `|'");
+					return (err_preparser(str, "minishell: syntax error near unexpected token `|'"));
 				else if (str[i - 1] != '|')
-					err_preparser(str, "syntax error near unexpected token `|'");
+					return (err_preparser(str, "syntax error near unexpected token `|'"));
 			}
 			all->num_of_pipes++;
 			string_symbols = 0;
@@ -426,120 +382,70 @@ void	preparser(char *str, t_all *all)
 			if (!string_symbols)
 			{
 				if (str[i - 1] == ';' || str[i + 1] == ';')
-					err_preparser(str, "syntax error near unexpected token `;;'");
+					return (err_preparser(str, "syntax error near unexpected token `;;'"));
 				else
-					err_preparser(str, "syntax error near unexpected token `;'");
+					return (err_preparser(str, "syntax error near unexpected token `;'"));
 			}
 			string_symbols = 0;
 		}
 		else if (str[i] != ' ' && str[i] != '\t')
 			string_symbols++;
 	}
-	if (str[i - 1] == '\\')
-		err_preparser(str, "unclosed slash");
+	i--;
+	while (str[i] == ' ' || str[i] == '\t')
+		i--;
+	if (str[i] == '\\')
+		return (err_preparser(str, "unclosed slash"));
+	if (str[i] == '|')
+		return (err_preparser(str, "unclosed pipe"));
 	if (d_quotas % 2 || s_quotas % 2)
-		err_preparser(str, "unclosed quotation marks");
+		return (err_preparser(str, "unclosed quotation marks"));
+	return (0);
 }
 
-// void copy_env(t_all *all, char **env)
-// {
-// 	int i = 0;
-// 	while (env[i])
-// 		i++;
-// 	all->envp = (char **)ft_calloc(i + 1, sizeof(char *));
-// 	i = -1;
-// 	while (env[++i])
-// 		all->envp[i] = ft_strdup(env[i]);
-// }
-
-// void	all_init(t_all *all, char **env)
-// {
-// 	int i = 0;
-// 	all->args = (char**)malloc(sizeof(char*));
-// 	all->args[0] = NULL;
-// 	all->redirect_0 = 0;
-// 	all->redirect_1 = 1;
-// 	all->fd[0] = dup(0);
-// 	all->fd[1] = dup(1);
-// 	all->count_pipes = 0;
-// 	copy_env(all, env);
-// 	all->pipes = (char***)malloc(sizeof(char**) * all->num_of_pipes);
-// }
-
-void ft_sigint(int sig)
-{   
-	if (pid.pid == 0)
-	{
-    	ft_putstr_fd(" \b\b \b\b \b\b", 1);
-    	printf("\n");
-		ft_putstr_fd("minishell>", 1);	
-	}
-	else
-	{
-		printf("\n");
-    	kill(pid.pid, 2);
-		pid.status_exit = 130;
-	}
-}
-
-void ft_sigquit(int sig)
-{
-	//printf("%d\n", pid.pid);
-	if (pid.pid != 0)
-	{
-		//printf("Quit: %d\n", sig);
-		//kill(pid.pid, 3);
-		pid.status_exit = 131;
-		printf("Quit: %d\n", sig);
-	}
-	if (pid.pid == 0)
-	{
-		ft_putstr_fd("\b \b\b \b", 1);
-	}
-}
-
-int     main(int argc, char *argv[], char **env)
+int	main(int argc, char *argv[], char **env)
 {
 	char	*line;
 	t_all	all;
 	int		status;
-	static t_pid	pid;
+	static t_pid	ret;
 
-	// char *d = ft_strdup("echo \"\\\\$HOME\"");
+	// char *d = ft_strdup("pwd |cat -n|grep 1");
 	// int c =-1;
 	(void)argc;
 	(void)argv;
-	////////////////////
 	all.tmp = 0;
-	pid.status_exit = 0;
-	all.pid = &pid;
+	ret.status_exit = 0;
+	all.pid = &ret;
 	copy_env(&all, env);
-	///////////////////
 	signal(SIGINT, ft_sigint);
-    signal(SIGQUIT, ft_sigquit);
+	signal(SIGQUIT, ft_sigquit);
 	while (1)
 	{
-	//printf("%d\n", pid.pid);
-	ft_putstr_fd("minishell> ", 1);
-	if (get_next_line(1, &line) == 1)
-		write(1, "\n", 1);
-	preparser(line, &all);  // Препарсер выдаёт информацию о количестве пайпов
-	all_init(&all, env);
-	parser(line, &all);
-	// printf("|%s|\n", all.args[0]);
-	// printf("|%s|\n", all.args[1]);
-	// printf("|%s|\n", all.args[2]);
-	if (all.args[0] && ft_strncmp(all.args[0], "", 1))
-		execute(&all);
-	// d_freed(all.args);
-	// t_freed(all.pipes);
+		ft_putstr_fd("minishell> ", 1);
+		get_next_line(0, &line);
+		if (preparser(line, &all))
+			continue;
+		all_init(&all, env);
+		// printf("|%s|\n", all.args[0]);
+		// printf("|%s|\n", all.args[1]);
+		// printf("|%s|\n", all.args[2]);
+		if (parser(line, &all))
+			continue;
+		if (all.args[0] && ft_strncmp(all.args[0], "", 1))
+			execute(&all);
+		// printf("|%s|\n", all.args[0]);
+		// printf("|%s|\n", all.args[1]);
+		// printf("|%s|\n", all.args[2]);
+		d_freed(all.args);
+		// t_freed(all.pipes);
+		free(line);
 	}
-	// freed(ln);
-	freed(line);
+	free(line);
 	return 0;
 }
 
-// ls>1>2		ls -a |'ca't -n|grep 5		ls	 | cat -n ; ls -a | grep main		ls -a ||'ca't -n| grep 5 ;  	pwd | cat -n
+// ls>1>2		ls -a |'ca't -n|grep 5		ls	 | cat -n ; ls -a | grep main		ls -a |'ca't -n| grep 5 ;  	pwd | cat -n
 // Пустая строка
 // Некорректно работает grep, при передаче редиректа вначале
 // r = read(0, line, 100);
@@ -552,12 +458,13 @@ int     main(int argc, char *argv[], char **env)
 
 
 // export.c:      treat_export, parse_args
-// main.c			treat_exit
-// 					parser не отрабатывает $? с "if (ft_isalpha(str[i + 1]))"
-// прототипы экспорт и ансет в хэдере
+// main.c 					parser не отрабатывает $? с "if (ft_isalpha(str[i + 1]))"
+// прототипы  в хэдере
 // treat_export
 // treat_unset
 // commands
 // treat_cd
 //	treat_env
-// main.c 			to_exec pid - глобальная переменная
+// новый файл exit.c -> treat_exit
+// новый файл signals.c -> ft_sigint, ft_sigquit, to_exec
+							//to_exec pid - глобальная переменная

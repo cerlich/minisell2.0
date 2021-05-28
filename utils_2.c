@@ -10,12 +10,9 @@ char	*relloc(char *str, char add)
 	j = 0;
 	if (!str || !add)
 		return (NULL);
-	new_str = (char*)malloc(sizeof(char) * (ft_strlen(str) + 2));
+	new_str = (char *)malloc(sizeof(char) * (ft_strlen(str) + 2));
 	if (!new_str)
-	{
-		// freed(str);
 		return (str);
-	}
 	while (str[i])
 	{
 		new_str[i] = str[i];
@@ -24,6 +21,7 @@ char	*relloc(char *str, char add)
 	new_str[i++] = add;
 	new_str[i] = '\0';
 	freed(str);
+	str = NULL;
 	return (new_str);
 }
 
@@ -57,7 +55,10 @@ char	*double_quota(char *str, int *i, t_all *all)
 		else if (str[(*i)] == '$')
 		{
 			if (ft_isalpha(str[(*i) + 1]))
+			{
+				freed(substr);
 				substr = treat_dollar(&str[*i], i, all);
+			}
 			else
 				substr = relloc(substr, str[*i]);
 		}

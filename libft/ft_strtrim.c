@@ -14,7 +14,7 @@
 
 static int	in_set(char c, char const *set)
 {
-	size_t i;
+	size_t	i;
 
 	i = 0;
 	while (set[i])
@@ -26,7 +26,7 @@ static int	in_set(char c, char const *set)
 	return (0);
 }
 
-char		*ft_strtrim(char const *s, char const *set)
+char	*ft_strtrim(char const *s, char const *set)
 {
 	char	*fresh;
 	size_t	i;

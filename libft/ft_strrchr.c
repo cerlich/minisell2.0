@@ -17,7 +17,7 @@ char	*ft_strrchr(const char *s, int ch)
 	char	*str;
 	size_t	ln;
 
-	str = (char*)s;
+	str = (char *)s;
 	ln = ft_strlen(s);
 	if (ch == '\0')
 		return (str + ln);

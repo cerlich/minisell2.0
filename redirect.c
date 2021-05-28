@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-int		not_spec(char c)
+int	not_spec(char c)
 {
 	if (c == ' ')
 		return (0);
@@ -14,8 +14,8 @@ int		not_spec(char c)
 		return (0);
 	return (1);
 }
-// ls >1>	ls >:>		ls >''1>	ls >1>
-void	redirect_err(char *file_name, char *str, int *i)
+
+int	redirect_err(char *file_name, char *str, int *i)
 {
 	if (file_name[0] == '\0' && str[(*i) + 1] == '>')
 		write(1, "minishell: syntax error near unexpected token `>>'\n", 51);
@@ -24,11 +24,13 @@ void	redirect_err(char *file_name, char *str, int *i)
 	else if (file_name[0] == '\0')
 		write(1, "minishell: syntax error near unexpected token `>'\n", 50);
 	else
-		printf("minishell: syntax error near unexpected token `%s'\n", file_name);
-	exit(EXIT_FAILURE);
+		printf("minishell: syntax error near unexpected token `%s'\n",
+			file_name);
+	free(file_name);
+	return (1);
 }
 
-int		check_redirect(char *str, int *i)
+int	check_redirect(char *str, int *i)
 {
 	if (str[*i] == '<')
 		return (2);
@@ -37,10 +39,10 @@ int		check_redirect(char *str, int *i)
 		(*i)++;
 		return (1);
 	}
-	return 0;
+	return (0);
 }
 
-int		is_num(char *str)
+int	is_num(char *str)
 {
 	int	i;
 
@@ -51,7 +53,7 @@ int		is_num(char *str)
 	return (1);
 }
 
-void	redirect(char *str, int *i, t_all *all)
+int	redirect(char *str, int *i, t_all *all)
 {
 	char	*file_name;
 	char	*quota;
@@ -67,8 +69,10 @@ void	redirect(char *str, int *i, t_all *all)
 	skip_spaces(str, i);
 	if (!str[(*i) + 1])
 	{
-		write(1, "minishell: syntax error near unexpected token `newline'\n", 56);
-		exit(EXIT_FAILURE);
+		write(1, "minishell: syntax error near unexpected token `newline'\n",
+			56);
+		free(file_name);
+		return (1);
 	}
 	while (not_spec(str[++(*i)]))
 	{
@@ -89,25 +93,27 @@ void	redirect(char *str, int *i, t_all *all)
 		else if (str[*i] == '\\')
 			file_name = relloc(file_name, str[++(*i)]);
 		else if ((str[*i] == '>' || str[*i] == '<') && !f && is_num(file_name))
-			redirect_err(file_name, str, i);
-		else if (str[*i] == '>' && (str[(*i) + 1] == ' ' || str[(*i) + 1] == '\t' || !str[(*i) + 1]))
+			return (redirect_err(file_name, str, i));
+		else if (str[*i] == '>' && (str[(*i) + 1] == ' '
+			|| str[(*i) + 1] == '\t' || !str[(*i) + 1]))
 		{
-			write(1, "minishell: syntax error near unexpected token `newline'\n", 56);
-			exit(EXIT_FAILURE);
+			write(1, "minishell: syntax error near unexpected token `newline'\n",
+				56);
+			free(file_name);
+			return (1);
 		}
 		else
 			file_name = relloc(file_name, str[*i]);
 	}
-	// change_dir
 	if (redirect == 0)
 	{
 		close(all->redirect_1);
 		fd_1 = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		// printf("%d\n", fd_1);
 		if (fd_1 == -1)
 		{
 			printf("%s\n", strerror(errno));
-			exit(0);
+			free(file_name);
+			return (1);
 		}
 		all->redirect_1 = fd_1;
 		skip_spaces(str, i);
@@ -119,7 +125,8 @@ void	redirect(char *str, int *i, t_all *all)
 		if (fd_1 == -1)
 		{
 			printf("%s\n", strerror(errno));
-			exit(0);
+			free(file_name);
+			return (1);
 		}
 		all->redirect_1 = fd_1;
 		skip_spaces(str, i);
@@ -131,12 +138,12 @@ void	redirect(char *str, int *i, t_all *all)
 		if (fd_2 == -1)
 		{
 			printf("%s\n", strerror(errno));
-			exit(0);
+			free(file_name);
+			return (1);
 		}
 		all->redirect_0 = fd_2;
-		// all->redir = file_name;
 		skip_spaces(str, i);
 	}
-
 	freed(file_name);
+	return (0);
 }

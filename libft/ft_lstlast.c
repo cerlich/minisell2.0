@@ -19,9 +19,9 @@ static t_list	*get_next(t_list *lst)
 	return (lst->next);
 }
 
-t_list			*ft_lstlast(t_list *lst)
+t_list	*ft_lstlast(t_list *lst)
 {
-	int c;
+	int	c;
 
 	c = ft_lstsize(lst);
 	if (!lst)

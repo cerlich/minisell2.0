@@ -28,7 +28,7 @@ static size_t	sqr(size_t len)
 		return (sqr(len - 1) * 10);
 }
 
-static char		elems(int n, size_t ln)
+static char	elems(int n, size_t ln)
 {
 	if (ln != 0)
 		n = n / sqr(ln);
@@ -54,7 +54,7 @@ static char		elems(int n, size_t ln)
 	return ('9');
 }
 
-char			*ft_itoa(int n)
+char	*ft_itoa(int n)
 {
 	char	*str;
 	size_t	len;
@@ -65,9 +65,9 @@ char			*ft_itoa(int n)
 	i = 0;
 	len = nlen(n);
 	if (n < 0)
-		str = (char*)malloc((len + 2) * sizeof(*str));
+		str = (char *)malloc((len + 2) * sizeof(*str));
 	else
-		str = (char*)malloc((len + 1) * sizeof(*str));
+		str = (char *)malloc((len + 1) * sizeof(*str));
 	if (!(str))
 		return (NULL);
 	if (n < 0)

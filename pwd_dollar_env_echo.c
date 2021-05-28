@@ -3,6 +3,7 @@
 void	treat_pwd(void)
 {
 	char	*dir;
+
 	dir = ft_calloc(MAXPATHLEN, 1);
 	getcwd(dir, MAXPATHLEN);
 	printf("%s\n", dir);
@@ -36,10 +37,13 @@ void	treat_echo(t_all *all)
 		ft_putchar_fd('\n', all->redirect_1);
 }
 
-static int		key(char *str)
+static int	key(char *str)
 {
-	int i = 0;
-	int n = 0;
+	int	i;
+	int	n;
+
+	i = 0;
+	n = 0;
 	while (str[i] == '_' || ft_isalnum(str[i]))
 	{
 		n++;
@@ -63,7 +67,7 @@ char	*treat_dollar(char *str, int *j, t_all *all)
 		*j += 1;
 		return (new);
 	}
-	while(all->envp[++i])
+	while (all->envp[++i])
 	{
 		if (!ft_strncmp(all->envp[i], &str[1], n) && all->envp[i][n] == '=')
 		{
@@ -77,7 +81,9 @@ char	*treat_dollar(char *str, int *j, t_all *all)
 
 void	treat_env(t_all *all)
 {
-	int i = -1;
+	int	i;
+
+	i = -1;
 	if (!all->args[1])
 	{
 		while (all->envp[++i])

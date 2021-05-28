@@ -18,7 +18,7 @@ char	*ft_strnstr(const char *str, const char *substr, size_t n)
 	size_t	ln;
 
 	if (*substr == '\0')
-		return ((char*)(str));
+		return ((char *)(str));
 	i = 0;
 	ln = ft_strlen(substr);
 	while (*str != '\0')
@@ -26,7 +26,7 @@ char	*ft_strnstr(const char *str, const char *substr, size_t n)
 		if (i + ln > n)
 			return (NULL);
 		if (ft_strncmp(str, substr, ln) == 0)
-			return ((char*)(str));
+			return ((char *)(str));
 		str++;
 		i++;
 	}
