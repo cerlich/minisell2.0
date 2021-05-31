@@ -13,12 +13,14 @@ static int	get_exit_code(t_all *all)
 			printf("minishell: exit: %s: numeric argument required\n",
 				all->args[1]);
 			all->pid->status_exit = 255;
+			break ;
 		}
 	}
 	if (all->tmp >= 0 && all->tmp <= 255)
 		all->pid->status_exit = all->tmp;
 	if (all->tmp >= 256 && all->tmp <= 9223372036854775807)
 		all->pid->status_exit = all->tmp % 256;
+	printf("exit\n");
 	exit(all->pid->status_exit);
 }
 

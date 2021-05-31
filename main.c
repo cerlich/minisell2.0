@@ -20,6 +20,7 @@ void	treat_func(t_all *all)
 	int		res;
 	char	**dirs;
 	struct stat	buff;
+	char *tmp;
 	// char	*shel_lvl[3];
 
 	i = -1;
@@ -37,7 +38,11 @@ void	treat_func(t_all *all)
 			printf("minishell>: %s: No such file or directory\n", all->args[0]);
 		return ;
 	}
-	dirs = ft_split(getenv("PATH"), ':');
+	//dirs = ft_split(getenv("PATH"), ':');
+	tmp = treat_dollar("$PATH", &i, all);
+	dirs = ft_split(tmp, ':');
+	free(tmp);
+	i = -1;
 	while (dirs[++i])
 	{
 		dirs[i] = relloc(dirs[i], '/');
@@ -457,14 +462,4 @@ int	main(int argc, char *argv[], char **env)
 	// 	}
 
 
-// export.c:      treat_export, parse_args
-// main.c 					parser не отрабатывает $? с "if (ft_isalpha(str[i + 1]))"
-// прототипы  в хэдере
-// treat_export
-// treat_unset
-// commands
-// treat_cd
-//	treat_env
-// новый файл exit.c -> treat_exit
-// новый файл signals.c -> ft_sigint, ft_sigquit, to_exec
-							//to_exec pid - глобальная переменная
+// cd exit treat_func

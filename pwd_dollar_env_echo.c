@@ -55,6 +55,7 @@ static int	key(char *str)
 char	*treat_dollar(char *str, int *j, t_all *all)
 {
 	char	*new;
+	char	*tmp;
 	int		i;
 	int		n;
 
@@ -63,7 +64,9 @@ char	*treat_dollar(char *str, int *j, t_all *all)
 	*j += n;
 	if (!ft_strncmp(&str[1], "?", 2))
 	{
-		new = ft_strdup(ft_itoa(all->pid->status_exit));
+		tmp = ft_itoa(all->pid->status_exit);
+		new = ft_strdup(tmp);
+		free(tmp);
 		*j += 1;
 		return (new);
 	}
