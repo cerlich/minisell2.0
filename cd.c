@@ -46,6 +46,7 @@ int	treat_cd(t_all *all)
 	char	*old;
 	char	*new;
 
+	new = NULL;
 	old = ft_calloc(MAXPATHLEN, 1);
 	getcwd(old, MAXPATHLEN);
 	if (!all->args[1])

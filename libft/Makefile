@@ -14,7 +14,7 @@
 NAME = libft.a
 RM = rm -f
 OBJ = ${SRC:.c=.o}
-CFLAGS = -Wall -Wextra -Werror -D BUFFER_SIZE=32
+CFLAGS = -Wall -Wextra -Werror
 SRC = ft_bzero.c \
 ft_strdup.c \
 ft_atoi.c \

@@ -67,5 +67,6 @@ char	**treat_export(t_all *all)
 		d_freed(all->envp);
 		exit(1);
 	}
+	rewrite_env(all, new_env);
 	return (new_env);
 }

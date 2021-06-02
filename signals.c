@@ -18,6 +18,8 @@ void	to_exec(t_all *all, char *cmd_path,
 		if (g_pid.status_exit == 130)
 			all->pid->status_exit = 130;
 	}
+	dup2(all->fd[0], all->redirect_0);
+	dup2(all->fd[1], all->redirect_1);
 }
 
 void	ft_sigint(int sig)

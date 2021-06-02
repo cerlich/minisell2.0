@@ -1,31 +1,35 @@
 #include "minishell.h"
 
-void	freed(char *str)
+void	freed(void *content)
 {
-	free(str);
-	str = NULL;
+	free(content);
+	content = NULL;
 }
 
-void	d_freed(char **str)
+void	d_freed(void *content)
 {
-	int	i;
+	int				i;
+	unsigned char	**d_arr;
 
+	d_arr = (unsigned char **)content;
 	i = 0;
-	while (str[i])
-		freed(str[i++]);
-	free(str);
-	str = NULL;
+	while (d_arr[i])
+		freed(d_arr[i++]);
+	free(d_arr);
+	d_arr = NULL;
 }
 
-void	t_freed(char ***str)
+void	t_freed(void *content)
 {
-	int	i;
+	int				i;
+	unsigned char	***t_arr;
 
+	t_arr = (unsigned char ***)content;
 	i = 0;
-	while (str[i])
-		d_freed(str[i++]);
-	free(str);
-	str = NULL;
+	while (t_arr[i])
+		d_freed(t_arr[i++]);
+	free(t_arr);
+	t_arr = NULL;
 }
 
 int	ft_strclen(const char *s, char c)

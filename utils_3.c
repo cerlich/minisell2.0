@@ -30,3 +30,37 @@ void	add_arg(t_all *all, char **string)
 	freed(*string);
 	*string = ft_strdup("");
 }
+
+int	err_preparser(char *str, char *s)
+{
+	printf("minishell: %s\n", s);
+	freed(str);
+	return (1);
+}
+
+int	not_spec(char c)
+{
+	if (c == ' ')
+		return (0);
+	if (c == '\0')
+		return (0);
+	if (c == ';')
+		return (0);
+	if (c == '|')
+		return (0);
+	if (c == '\t')
+		return (0);
+	return (1);
+}
+
+int	check_redirect(char *str, int *i)
+{
+	if (str[*i] == '<')
+		return (2);
+	if (str[(*i) + 1] == '>')
+	{
+		(*i)++;
+		return (1);
+	}
+	return (0);
+}
